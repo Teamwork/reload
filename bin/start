@@ -1,0 +1,87 @@
+# vi:ft=sh
+
+set -euC
+
+cd "$root"
+
+# Load settings
+[ -f "$root/bin/settings" ] && . "$root/bin/settings"
+
+###
+# Stuff to set in settings file.
+
+# Codecov token for coverage reports; only needed for private repos.
+codecov_token=${codecov_token:-}
+
+# Tags to add to "go test" when running tests.
+test_tags=${test_tags:-}
+
+# Verbose output?
+verbose=${verbose:-0}
+
+# Directory names to ignore in the ./bin/lint script; multiple directories are
+# separated by newlines.
+lint_ignore="${lint_ignore:-}"
+
+# Callback to run before "go test" in ./bin/test and ./bin/coverage.
+pre_test_func=${pre_test_func:-:}
+
+
+###
+# For the following the defaults should almost always be okay. If not, then
+# consider fixing the project maybe?
+
+# Binary name.
+name=${name:-$(basename "$root")}
+
+# Go package name
+pkgname=${pkgname:-"github.com/teamwork/$name"}
+
+# Git branch
+branch=${TRAVIS_PULL_REQUEST_BRANCH:-${TRAVIS_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}}
+
+# Docker image tag; usually the commit
+docker_tag=${docker_tag:-${TRAVIS_COMMIT:-dev-env}}
+
+# Make sure this is set locally so we can do -z/-n.
+TRAVIS=${TRAVIS:-}
+
+# So scripts can override this.
+usage_func=${usage_func:-_usage}
+options_func=${options_func:-_parse_options}
+
+# Usage info.
+_usage() {
+	echo "Usage: ${0##*/} [-hv] [-t tag]"
+	echo
+	echo "$usage"
+	echo
+	echo "Options:"
+	echo "  -h     Show this help"
+	echo "  -v     Enable verbose output"
+	echo "  -t     Set tag for Docker and main.version"
+	echo "  -b     Go build tag; can be given more than once"
+	echo
+}
+
+# Parse options
+_parse_options() {
+	while getopts "hvt:b:" option; do
+		case "$option" in
+			h) $usage_func; exit 0 ;;
+			v) verbose=1; set -x ;;
+			t) tag=$OPTARG ;;
+			b) test_tags="$test_tags $OPTARG" ;;
+			*)
+				echo "error: unknown option '$option'"
+				$usage_func
+				exit 1
+				;;
+		esac
+	done
+
+	[ -n "$test_tags" ] && test_tags="${test_tags# }"
+	return 0
+}
+
+$options_func "$@"

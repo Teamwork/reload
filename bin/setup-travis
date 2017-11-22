@@ -1,0 +1,18 @@
+#!/bin/sh
+
+usage="Setup the environment for Travis"
+
+# Setup
+#######
+set -euC
+root="$(cd "$(dirname "$0")/.." && pwd)"
+. "$root/bin/start"
+
+# Run action
+############
+
+# Setup dep if it's used and vendor isn't in git.
+if [ -f Gopkg.toml -a ! -d vendor ]; then
+	go get -u github.com/golang/dep/cmd/dep
+	dep ensure
+fi

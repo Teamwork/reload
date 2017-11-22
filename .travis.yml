@@ -1,0 +1,16 @@
+language: go
+go:
+  - 1.9.x
+go_import_path: github.com/teamwork/reload
+notifications:
+  email: false
+cache:
+  directories:
+    - $HOME/gopath/pkg
+install:
+  - ./bin/setup-travis
+script:
+  - cd $HOME/gopath/src/github.com/teamwork/reload
+  - ./bin/test
+  - ./bin/coverage
+  - ./bin/lint
