@@ -2,6 +2,15 @@
 //
 // After initialisation with `reload.Do()` any changes to the binary will
 // restart the process.
+//
+// Example:
+//
+//    go func() {
+//        err := Do(log.Printf)
+//        if err != nil {
+//            panic(err)
+//        }
+//    }()
 package reload // import "github.com/teamwork/reload"
 
 import (
@@ -13,11 +22,14 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
-	"github.com/teamwork/log"
 )
 
+type logger interface {
+	Printf(string, ...interface{})
+}
+
 // Do reload the current process when its binary changes.
-func Do() error {
+func Do(log func(string, ...interface{})) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return errors.Wrap(err, "cannot setup watcher")
@@ -36,7 +48,9 @@ func Do() error {
 		for {
 			select {
 			case err := <-watcher.Errors:
-				log.Error(err)
+				// Standard logger doesn't have anything other than Print,
+				// Panic, and Fatal :-/ Printf() is probably best.
+				log("reload error: %v", err)
 			case event := <-watcher.Events:
 				if event.Op&fsnotify.Write == fsnotify.Write && event.Name == bin {
 					// Wait for writes to finish.
@@ -54,7 +68,7 @@ func Do() error {
 		return errors.Wrapf(err, "cannot add %#v to watcher", dir)
 	}
 
-	log.Printf("restarting %#v when it changes", bin)
+	log("restarting %#v when it changes", bin)
 	<-done
 	return nil
 }
