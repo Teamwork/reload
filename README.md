@@ -1,6 +1,6 @@
+[![GoDoc](https://godoc.org/github.com/Teamwork/reload?status.svg)](https://teamwork.github.io/reload/)
 [![Build Status](https://travis-ci.org/Teamwork/reload.svg?branch=master)](https://travis-ci.org/Teamwork/reload)
 [![codecov](https://codecov.io/gh/Teamwork/reload/branch/master/graph/badge.svg?token=n0k8YjbQOL)](https://codecov.io/gh/Teamwork/reload)
-[![GoDoc](https://godoc.org/github.com/Teamwork/reload?status.svg)](https://godoc.org/github.com/Teamwork/reload)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Teamwork/reload)](https://goreportcard.com/report/github.com/Teamwork/reload)
 
 The reload package offers lightweight automatic reloading of running processes.
