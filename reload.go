@@ -1,6 +1,6 @@
 // Package reload offers lightweight automatic reloading of running processes.
 //
-// After initialisation with `reload.Do()` any changes to the binary will
+// After initialisation with reload.Do() any changes to the binary will
 // restart the process.
 //
 // Example:
@@ -29,6 +29,12 @@ type logger interface {
 }
 
 // Do reload the current process when its binary changes.
+//
+// The log function is used to display an informational startup message and
+// errors. It works well with e.g. the standard log package or Logrus.
+//
+// The error return will only return initialisation/startup errors. Once
+// initialized it will use the log function to print errors, rather than return.
 func Do(log func(string, ...interface{})) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
