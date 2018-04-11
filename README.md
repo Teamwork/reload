@@ -11,7 +11,7 @@ the binary) will restart the process. For example:
 ```go
 func main() {
     go func() {
-        err := Do(log.Printf)
+        err := reload.Do(log.Printf)
         if err != nil {
             // Only returns initialisation/startup errors.
             panic(err)
