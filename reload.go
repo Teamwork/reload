@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -58,7 +59,20 @@ func Do(log func(string, ...interface{})) error {
 				// Panic, and Fatal :-/ Printf() is probably best.
 				log("reload error: %v", err)
 			case event := <-watcher.Events:
-				if event.Op&fsnotify.Write == fsnotify.Write && event.Name == bin {
+				// Ensure that we use the correct events, as they are not uniform accross
+				// platforms. See https://github.com/fsnotify/fsnotify/issues/74
+				var trigger bool
+				switch runtime.GOOS {
+				case "darwin", "freebsd", "openbsd", "netbsd", "dragonfly":
+					trigger = event.Op&fsnotify.Create == fsnotify.Create
+				case "linux":
+					trigger = event.Op&fsnotify.Write == fsnotify.Write
+				default:
+					trigger = event.Op&fsnotify.Create == fsnotify.Create
+					log("reload: untested GOOS %q; this package may not work correctly", runtime.GOOS)
+				}
+
+				if trigger && event.Name == bin {
 					// Wait for writes to finish.
 					time.Sleep(100 * time.Millisecond)
 					exec(bin)
