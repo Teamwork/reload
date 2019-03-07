@@ -25,10 +25,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type logger interface {
-	Printf(string, ...interface{})
-}
-
 // Do reload the current process when its binary changes.
 //
 // The log function is used to display an informational startup message and
@@ -43,9 +39,14 @@ func Do(log func(string, ...interface{})) error {
 	}
 	defer watcher.Close() // nolint: errcheck
 
-	bin, err := filepath.Abs(os.Args[0])
-	if err != nil {
-		return errors.Wrapf(err, "cannot get Abs of %#v", os.Args[0])
+	bin := os.Args[0]
+	if !filepath.IsAbs(bin) {
+		bin, err = os.Executable()
+		if err != nil {
+			return errors.Wrapf(err,
+				"cannot get path to binary %q (launch with absolute path): %v",
+				os.Args[0], err)
+		}
 	}
 
 	dir := filepath.Dir(bin)
