@@ -12,17 +12,32 @@ func main() {
     go func() {
         err := reload.Do(log.Printf)
         if err != nil {
-            // Only returns initialisation/startup errors.
-            panic(err)
+            panic(err) // Only returns initialisation errors.
         }
     }()
 
-    // Replace with actual code...
-    time.Sleep(666 * time.Second)
+    fmt.Println(os.Args)
+    fmt.Println(os.Environ())
+    ch := make(chan bool)
+    <-ch
 }
 ```
 
 Now use `go install` or `go build` to restart the process.
+
+Additional directories can be watched using `reload.Dir()`; this is useful for
+reloading templates:
+
+```go
+func main() {
+    go func() {
+        err := reload.Do(log.Printf, reload.Dir("tpl", reloadTpl))
+        if err != nil {
+            panic(err)
+        }
+    }()
+}
+```
 
 This is an alternative to the "restart binary after any `*.go` file
 changed"-strategy that some other projects – such as
@@ -36,6 +51,9 @@ large number of files.
 It also means you won't start a whole bunch of builds if you update 20 files in
 a quick succession. On a desktop this probably isn't a huge deal, but on a
 laptop it'll save some battery power.
+
+Because it's in-process you can also do things like reloading just templates
+instead of recompiling/restarting everything.
 
 Caveat: the old process will continue running happily if `go install` has a
 compile error, so if you missed any compile errors due to switching the window

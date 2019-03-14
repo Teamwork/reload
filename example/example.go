@@ -10,7 +10,9 @@ import (
 
 func main() {
 	go func() {
-		err := reload.Do(log.Printf)
+		err := reload.Do(log.Printf,
+			reload.Dir("/tmp", func() { log.Printf("/tmp changed") }),
+			reload.Dir(".", reload.Exec))
 		if err != nil {
 			panic(err)
 		}
