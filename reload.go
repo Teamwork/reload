@@ -95,7 +95,7 @@ func Do(log func(string, ...interface{})) error {
 }
 
 func exec(bin string) {
-	err := syscall.Exec(bin, []string{bin}, os.Environ())
+	err := syscall.Exec(bin, append([]string{bin}, os.Args[1:]...), os.Environ())
 	if err != nil {
 		panic(fmt.Sprintf("cannot restart: %v", err))
 	}
