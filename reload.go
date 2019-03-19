@@ -20,6 +20,9 @@
 //            panic(err)
 //        }
 //    }()
+//
+// Note that this package won't prevent race conditions (e.g. when assigning to
+// a global templates variable). You'll need to use sync.RWMutex yourself.
 package reload // import "github.com/teamwork/reload"
 
 import (
@@ -47,7 +50,7 @@ type dir struct {
 //
 // The second argument is the callback that to run when the directory changes.
 // Use reload.Exec() to restart the process.
-func Dir(path string, cb func()) dir { return dir{path, cb} }
+func Dir(path string, cb func()) dir { return dir{path, cb} } // nolint: golint
 
 // Do reload the current process when its binary changes.
 //
