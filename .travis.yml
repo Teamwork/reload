@@ -1,16 +1,16 @@
 language: go
 go:
-  - 1.9.x
+  - 1.11.x
+  - 1.12.x
+  - 1.13.x
 go_import_path: github.com/teamwork/reload
 notifications:
   email: false
-cache:
-  directories:
-    - $HOME/gopath/pkg
 install:
-  - ./bin/setup-travis
-script:
-  - cd $HOME/gopath/src/github.com/teamwork/reload
-  - ./bin/test
-  - ./bin/coverage
-  - ./bin/lint
+script: |
+  export GO111MODULE=on
+  go test -race \
+    -coverprofile=coverage.txt \
+    -coverpkg=./... \
+    ./...
+  bash <(curl -s https://codecov.io/bash)
