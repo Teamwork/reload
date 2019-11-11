@@ -3,7 +3,7 @@ module github.com/teamwork/reload
 go 1.12
 
 require (
-	github.com/fsnotify/fsnotify v1.4.2
-	github.com/pkg/errors v0.8.0
-	golang.org/x/sys v0.0.0-20171121202757-82aafbf43bf8 // indirect
+	github.com/fsnotify/fsnotify v1.4.7
+	github.com/pkg/errors v0.8.1
+	golang.org/x/sys v0.0.0-20191110163157-d32e6e3b99c4 // indirect
 )
