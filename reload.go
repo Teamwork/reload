@@ -159,7 +159,16 @@ func Do(log func(string, ...interface{}), additional ...dir) error {
 
 // Exec replaces the current process with a new copy of itself.
 func Exec() {
-	err := syscall.Exec(binSelf, append([]string{binSelf}, os.Args[1:]...), os.Environ())
+	execName := binSelf
+	if execName == "" {
+		selfName, err := self()
+		if err != nil {
+			panic(fmt.Sprintf("cannot restart: cannot find self: %v", err))
+		}
+		execName = selfName
+	}
+
+	err := syscall.Exec(execName, append([]string{execName}, os.Args[1:]...), os.Environ())
 	if err != nil {
 		panic(fmt.Sprintf("cannot restart: %v", err))
 	}
