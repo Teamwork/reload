@@ -58,3 +58,6 @@ instead of recompiling/restarting everything.
 Caveat: the old process will continue running happily if `go install` has a
 compile error, so if you missed any compile errors due to switching the window
 too soon you may get confused.
+
+You can also use `reload.Exec()` to manually restart your process, instead of 
+automatically restarting when a file changes. 
