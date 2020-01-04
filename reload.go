@@ -1,7 +1,7 @@
 // Package reload offers lightweight automatic reloading of running processes.
 //
-// After initialisation with reload.Do() any changes to the binary will
-// restart the process.
+// After initialisation with reload.Do() any changes to the binary will restart
+// the process.
 //
 // Example:
 //
@@ -38,7 +38,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-var binSelf string
+var (
+	binSelf string
+
+	// The watcher won't be closed automatically, and the file descriptor will be
+	// leaked if we don't close it in Exec(); see #9.
+	closeWatcher func() error
+)
 
 type dir struct {
 	path string
@@ -50,7 +56,7 @@ type dir struct {
 //
 // The second argument is the callback that to run when the directory changes.
 // Use reload.Exec() to restart the process.
-func Dir(path string, cb func()) dir { return dir{path, cb} } // nolint: golint
+func Dir(path string, cb func()) dir { return dir{path, cb} }
 
 // Do reload the current process when its binary changes.
 //
@@ -64,7 +70,7 @@ func Do(log func(string, ...interface{}), additional ...dir) error {
 	if err != nil {
 		return errors.Wrap(err, "cannot setup watcher")
 	}
-	defer watcher.Close() // nolint: errcheck
+	closeWatcher = watcher.Close
 
 	binSelf, err = self()
 	if err != nil {
@@ -101,8 +107,6 @@ func Do(log func(string, ...interface{}), additional ...dir) error {
 		for {
 			select {
 			case err := <-watcher.Errors:
-				// Standard logger doesn't have anything other than Print,
-				// Panic, and Fatal :-/ Printf() is probably best.
 				log("reload error: %v", err)
 			case event := <-watcher.Events:
 				// Ensure that we use the correct events, as they are not uniform accross
@@ -168,6 +172,10 @@ func Exec() {
 		execName = selfName
 	}
 
+	if closeWatcher != nil {
+		closeWatcher()
+	}
+
 	err := syscall.Exec(execName, append([]string{execName}, os.Args[1:]...), os.Environ())
 	if err != nil {
 		panic(fmt.Sprintf("cannot restart: %v", err))
@@ -189,7 +197,7 @@ func self() (string, error) {
 	return bin, nil
 }
 
-// Get path relative to cwd
+// Get path relative to cwd.
 func relpath(p string) string {
 	cwd, err := os.Getwd()
 	if err != nil {
