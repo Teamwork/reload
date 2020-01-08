@@ -1,5 +1,5 @@
 [![GoDoc](https://godoc.org/github.com/teamwork/reload?status.svg)](https://godoc.org/github.com/teamwork/reload)
-[![Build Status](https://travis-ci.org/Teamwork/reload.svg?branch=master)](https://travis-ci.org/Teamwork/reload)
+[![Build Status](https://travis-ci.com/Teamwork/reload.svg?branch=master)](https://travis-ci.com/Teamwork/reload)
 [![codecov](https://codecov.io/gh/Teamwork/reload/branch/master/graph/badge.svg?token=n0k8YjbQOL)](https://codecov.io/gh/Teamwork/reload)
 
 Lightweight automatic reloading of Go processes.
