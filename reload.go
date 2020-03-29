@@ -35,7 +35,6 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -68,7 +67,7 @@ func Dir(path string, cb func()) dir { return dir{path, cb} }
 func Do(log func(string, ...interface{}), additional ...dir) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return errors.Wrap(err, "cannot setup watcher")
+		return fmt.Errorf("reload.Do: cannot setup watcher: %w", err)
 	}
 	closeWatcher = watcher.Close
 
@@ -85,16 +84,16 @@ func Do(log func(string, ...interface{}), additional ...dir) error {
 	for i := range additional {
 		path, err := filepath.Abs(additional[i].path)
 		if err != nil {
-			return errors.Wrapf(err, "cannot get absolute path to %q: %v",
+			return fmt.Errorf("reload.Do: cannot get absolute path to %q: %w",
 				additional[i].path, err)
 		}
 
 		s, err := os.Stat(path)
 		if err != nil {
-			return errors.Wrap(err, "os.Stat")
+			return fmt.Errorf("reload.Do: %w", err)
 		}
 		if !s.IsDir() {
-			return errors.Errorf("not a directory: %q; can only watch directories",
+			return fmt.Errorf("reload.Do: not a directory: %q; can only watch directories",
 				additional[i].path)
 		}
 
@@ -144,7 +143,7 @@ func Do(log func(string, ...interface{}), additional ...dir) error {
 
 	for _, d := range dirs {
 		if err := watcher.Add(d); err != nil {
-			return errors.Wrapf(err, "cannot add %q to watcher", d)
+			return fmt.Errorf("reload.Do: cannot add %q to watcher: %w", d, err)
 		}
 	}
 
@@ -189,8 +188,8 @@ func self() (string, error) {
 		var err error
 		bin, err = os.Executable()
 		if err != nil {
-			return "", errors.Wrapf(err,
-				"cannot get path to binary %q (launch with absolute path): %v",
+			return "", fmt.Errorf(
+				"cannot get path to binary %q (launch with absolute path): %w",
 				os.Args[0], err)
 		}
 	}
