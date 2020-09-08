@@ -1,9 +1,16 @@
-language: go
-go:
-  - 1.11.x
-  - 1.12.x
-  - 1.13.x
+language:       go
+go:             ['1.14.x', '1.15.x']
 go_import_path: github.com/teamwork/reload
+jobs:
+  include:
+    - {'os': 'linux',   'arch': 'amd64'}
+    - {'os': 'linux',   'arch': 'amd64'}
+    - {'os': 'linux',   'arch': 'arm64'}
+    - {'os': 'linux',   'arch': 'ppc64le'}
+    - {'os': 'linux',   'arch': 's390x'}
+    - {'os': 'osx',     'arch': 'amd64'}
+    - {'os': 'windows', 'arch': 'amd64'}
+
 notifications:
   email: false
 install:
